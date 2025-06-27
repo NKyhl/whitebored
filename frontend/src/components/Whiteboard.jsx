@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
 function Whiteboard() {
@@ -8,17 +8,46 @@ function Whiteboard() {
     const lastPoint = useRef(null);
     const wsRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
+    const [strokes, setStrokes] = useState([]);
+    const strokesRef = useRef(strokes);
+
+    useEffect(() => {
+        strokesRef.current = strokes;
+    }, [strokes])
+
+    // Setup canvas size and proper scaling
+    const setupCanvas = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const dpr = window.devicePixelRatio || 1
+        // CSS size
+        canvas.style.width = `${window.innerWidth}px`
+        canvas.style.height = `${window.innerHeight}px`
+        // Actual pixel size
+        canvas.width = window.innerWidth * dpr
+        canvas.height = window.innerHeight * dpr
+
+        const ctx = canvas.getContext('2d')
+        ctx.scale(dpr, dpr)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#000000'
+        ctx.lineWidth = 2
+
+        contextRef.current = ctx;
+
+        // Redraw all strokes on resized canvas
+        strokesRef.current.forEach(drawStroke)
+        console.log('setupCanvas')
+    }, []);
 
     // Initialize canvas context
     useEffect(() => {
-        const canvas = canvasRef.current
-        canvas.width = 800;
-        canvas.height = 600;
-        const ctx = canvas.getContext('2d')
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round';
-        contextRef.current = ctx;
-    }, []);
+        setupCanvas()
+        window.addEventListener('resize', setupCanvas)
+        return () => window.removeEventListener('resize', setupCanvas)
+    }, [setupCanvas]);
 
     // WebSocket connection and message handling
     useEffect(() => {
@@ -31,6 +60,7 @@ function Whiteboard() {
         wsRef.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
             if (message.type === 'stroke') {
+                setStrokes(prev => [...prev, message.stroke])
                 drawStroke(message.stroke);
             }
         }
@@ -58,49 +88,56 @@ function Whiteboard() {
         ctx.stroke();
     };
 
+    // Get the pointer position relative to canvas (given CSS scaling)
+    function getPointerPos(e) {
+        const canvas = canvasRef.current
+        if (!canvas) return { x: 0, y: 0 }
+
+        const rect = canvas.getBoundingClientRect()
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+        }
+    }
+
     // Start drawing
     function handlePointerDown(e) {
         setIsDrawing(true);
-        const x = e.nativeEvent.offsetX;
-        const y = e.nativeEvent.offsetY;
-        lastPoint.current = { x, y };
+        lastPoint.current = getPointerPos(e);
     }
 
     // Drawing
     function handlePointerMove(e) {
         if (!isDrawing) return;
 
-        const x = e.nativeEvent.offsetX;
-        const y = e.nativeEvent.offsetY;
+        const curr = getPointerPos(e);
 
         const ctx = contextRef.current;
         const prev = lastPoint.current;
 
+        const newStroke = {
+            from: prev,
+            to: curr,
+            color: '#000000',
+            width: 2
+        };
+
         if (ctx && prev) {
-            drawStroke({
-                from: prev,
-                to: { x, y },
-                color: '#000000',
-                width: 2
-            });
+            drawStroke(newStroke);
+            setStrokes(prev => [...prev, newStroke])
         }
 
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && prev) {
             const strokeMessage = {
                 type: 'stroke',
-                stroke: {
-                    from: prev,
-                    to: { x, y },
-                    color: "#000000",
-                    width: 2,
-                }
+                stroke: newStroke
             }
             wsRef.current.send(
                 JSON.stringify(strokeMessage)
             );
         }
 
-        lastPoint.current = { x, y }
+        lastPoint.current = curr
     }
 
     // Stops drawing
@@ -110,14 +147,41 @@ function Whiteboard() {
     }
 
     return (
-        <canvas
-            ref={canvasRef}
-            style={{ border: '1px solid black', touchAction: 'none' }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-        />
+        <div style={{ position: 'relative', height: '100vh', width: '100vw'}}>
+            <canvas
+                ref={canvasRef}
+                style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    touchAction: 'none',
+                    backgroundColor: '#fff'
+                }}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+            />
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 20,
+                    right: 20,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    color: 'white',
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    fontFamily: 'monospace',
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                    userSelect: 'text',
+                    pointerEvents: 'auto',
+                }}
+            >
+                Room Code: {canvasID}
+            </div>
+        </div>
     )
 }
 
