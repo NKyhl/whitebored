@@ -18,6 +18,9 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "OK"})
 	})
 
+	// Create new canvas endpoint
+	router.POST("/api/canvas", ws.CreateCanvasHandler(hub))
+
 	// WebSocket route
 	router.GET("/ws/:id", ws.HandleWebSocket(hub))
 

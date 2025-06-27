@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
-function Whiteboard({ canvasID }) {
+function Whiteboard() {
+    const { id: canvasID } = useParams()
     const canvasRef = useRef(null)
     const contextRef = useRef(null);
     const lastPoint = useRef(null);

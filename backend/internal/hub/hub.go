@@ -13,22 +13,22 @@ type Point struct {
 
 // Stroke represents a single stroke drawn on a canvas.
 type Stroke struct {
-	From	Point	`json:"from"`
-	To		Point	`json:"to"`
-	Color	string	`json:"color"`
-	Width	int		`json:"width"`
+	From  Point  `json:"from"`
+	To    Point  `json:"to"`
+	Color string `json:"color"`
+	Width int    `json:"width"`
 }
 
 type StrokeMessage struct {
-	Type	string	`json:"type"` // "stroke"
-	Stroke	Stroke	`json:"stroke"`
+	Type   string `json:"type"` // "stroke"
+	Stroke Stroke `json:"stroke"`
 }
 
 // Client represents a connected user.
 type Client struct {
-	ID		string
-	Send	chan []byte
-	Canvas	string
+	ID     string
+	Send   chan []byte
+	Canvas string
 }
 
 // Canvas holds the clients connected and the strokes drawn.
@@ -40,7 +40,7 @@ type Canvas struct {
 // Hub manages multiple canvases.
 type Hub struct {
 	Canvases map[string]*Canvas
-	mu 		 sync.RWMutex
+	mu       sync.RWMutex
 }
 
 // NewHub initializes and returns a new Hub.
@@ -48,6 +48,25 @@ func NewHub() *Hub {
 	return &Hub{
 		Canvases: make(map[string]*Canvas),
 	}
+}
+
+// CreateCanvas creates a new canvas with the given ID.
+func (h *Hub) CreateCanvas(canvasID string) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if _, exists := h.Canvases[canvasID]; !exists {
+		h.Canvases[canvasID] = &Canvas{
+			Clients: make(map[string]*Client),
+			Strokes: []Stroke{},
+		}
+	}
+}
+
+// CanvasExists checks if a canvasID is being used or not
+func (h *Hub) CanvasExists(canvasID string) bool {
+	_, exists := h.Canvases[canvasID];
+	return exists
 }
 
 // AddClient adds a client to a canvas, creating the canvas if needed,
@@ -70,7 +89,7 @@ func (h *Hub) AddClient(canvasID string, client *Client) {
 	// Send existing strokes to the new client
 	for _, stroke := range canvas.Strokes {
 		msg := StrokeMessage{
-			Type: "stroke",
+			Type:   "stroke",
 			Stroke: stroke,
 		}
 		data, err := json.Marshal(msg)
@@ -133,7 +152,7 @@ func (h *Hub) BroadcastStroke(canvasID string, stroke Stroke) {
 
 	// Prepare the message for broadcasting
 	msg := StrokeMessage{
-		Type: "stroke",
+		Type:   "stroke",
 		Stroke: stroke,
 	}
 	data, err := json.Marshal(msg)

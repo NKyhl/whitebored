@@ -11,6 +11,25 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func CreateCanvasHandler(h *hub.Hub) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Generate unique canvas ID
+		var newID string
+		for {
+			newID = hub.GenerateCanvasCode(6)
+			if !h.CanvasExists(newID) {
+				break
+			}
+		}
+
+		// Create Canvas data structure
+		h.CreateCanvas(newID)
+
+		// Send new canvasID back to client
+		c.JSON(http.StatusOK, gin.H{"canvasID": newID})
+	}
+}
+
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true }, // TODO: tighten this for production
 }
