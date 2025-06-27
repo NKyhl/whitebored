@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/NKyhl/whitebored/backend/internal/hub"
@@ -29,12 +30,15 @@ func HandleWebSocket(h *hub.Hub) gin.HandlerFunc {
 		clientID := uuid.New().String()
 		client := &hub.Client{
 			ID:		clientID,
-			Send:	make(chan []byte),
+			Send:	make(chan []byte, 256),
 			Canvas:	canvasID,
 		}
 
 		h.AddClient(canvasID, client)
-		defer h.RemoveClient(canvasID, clientID)
+		defer func() {
+			h.RemoveClient(canvasID, clientID)
+			close(client.Send)
+		}()
 
 		// Writer goroutine - any messages pushed to this client's
 		// channel (client.Send) will be written out to the WebSocket 
@@ -53,7 +57,15 @@ func HandleWebSocket(h *hub.Hub) gin.HandlerFunc {
 			if err != nil {
 				break
 			}
-			h.Broadcast(canvasID, msg)
+
+			var strokeMsg hub.StrokeMessage
+			if err := json.Unmarshal(msg, &strokeMsg); err != nil {
+				continue // Skip invalid JSON
+			}
+
+			if strokeMsg.Type == "stroke" {
+				h.BroadcastStroke(canvasID, strokeMsg.Stroke)
+			}
 		}
 	}
 }

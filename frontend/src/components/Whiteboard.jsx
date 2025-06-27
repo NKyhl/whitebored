@@ -20,18 +20,6 @@ function Whiteboard({ canvasID }) {
 
     // WebSocket connection and message handling
     useEffect(() => {
-        function drawStroke({ from, to, color, width }) {
-            const ctx = contextRef.current;
-            if (!ctx) return;
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-
-            ctx.beginPath();
-            ctx.moveTo(from.x, from.y);
-            ctx.lineTo(to.x, to.y)
-            ctx.stroke();
-        };
-
         wsRef.current = new WebSocket(`ws://localhost:8080/ws/${canvasID}`);
 
         wsRef.current.onopen = () => {
@@ -41,7 +29,7 @@ function Whiteboard({ canvasID }) {
         wsRef.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
             if (message.type === 'stroke') {
-                drawStroke(message);
+                drawStroke(message.stroke);
             }
         }
 
@@ -53,6 +41,20 @@ function Whiteboard({ canvasID }) {
             wsRef.current.close();
         };
     }, [canvasID]);
+
+    // Draw a stroke from a message
+    function drawStroke({ from, to, color, width }) {
+        const ctx = contextRef.current;
+        if (!ctx) return;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y)
+        ctx.stroke();
+    };
 
     // Start drawing
     function handlePointerDown(e) {
@@ -73,27 +75,33 @@ function Whiteboard({ canvasID }) {
         const prev = lastPoint.current;
 
         if (ctx && prev) {
-            ctx.beginPath();
-            ctx.moveTo(prev.x, prev.y);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-
-            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(
-                JSON.stringify({
-                type: 'stroke',
-                from: prev, // ✅ now this is the correct previous point
+            drawStroke({
+                from: prev,
                 to: { x, y },
-                color: "#000000",
-                width: 2,
-                })
-            );
+                color: '#000000',
+                width: 2
+            });
+        }
+
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && prev) {
+            const strokeMessage = {
+                type: 'stroke',
+                stroke: {
+                    from: prev,
+                    to: { x, y },
+                    color: "#000000",
+                    width: 2,
+                }
             }
+            wsRef.current.send(
+                JSON.stringify(strokeMessage)
+            );
         }
 
-        lastPoint.current = { x, y }; // ✅ update AFTER sending
-        }
+        lastPoint.current = { x, y }
+    }
 
+    // Stops drawing
     function handlePointerUp() {
         setIsDrawing(false);
         lastPoint.current = null;
