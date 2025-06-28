@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/NKyhl/whitebored/backend/internal/handlers"
 	"github.com/NKyhl/whitebored/backend/internal/hub"
-	"github.com/NKyhl/whitebored/backend/internal/ws"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,10 +19,10 @@ func main() {
 	})
 
 	// Create new canvas endpoint
-	router.POST("/api/canvas", ws.CreateCanvasHandler(hub))
+	router.POST("/api/canvas", handlers.CreateCanvasHandler(hub))
 
 	// WebSocket route
-	router.GET("/ws/:id", ws.HandleWebSocket(hub))
+	router.GET("/ws/:id", handlers.HandleWebSocket(hub))
 
 	router.Run(":8080")
 }
