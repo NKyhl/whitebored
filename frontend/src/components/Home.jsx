@@ -27,7 +27,8 @@ function Home() {
             alignItems: 'center',
             justifyContent: 'center',
             fontFamily: 'Inter, sans-serif',
-            position: 'relative'
+            position: 'relative',
+            padding: 24,
         }}>
             <a
                 href="https://github.com/NKyhl/whitebored"
@@ -35,8 +36,8 @@ function Home() {
                 rel="noopener noreferrer"
                 style={{
                     position: 'absolute',
-                    top: 24,
-                    right: 24,
+                    top: 32,
+                    right: 40,
                     background: 'none',
                     border: 'none',
                     padding: 0,
@@ -61,64 +62,109 @@ function Home() {
                         1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
                 </svg>
             </a>
-            <h1 style={{ fontWeight: 600, marginBottom: 32, letterSpacing: 1 }}>Whitebored</h1>
-            <button
-                onClick={createCanvas}
-                style={{
-                    background: 'none',
-                    border: '1px solid #fff',
-                    color: '#fff',
-                    padding: '12px 32px',
-                    borderRadius: 6,
-                    fontSize: 18,
-                    cursor: 'pointer',
-                    marginBottom: 32,
-                    transition: 'background 0.2s',
-                }}
-                onMouseOver={e => e.currentTarget.style.background = '#222'}
-                onMouseOut={e => e.currentTarget.style.background = 'none'}
-            >
-                Create New Canvas
-            </button>
             <div style={{
+                width: '100%',
+                maxWidth: 380,
                 display: 'flex',
-                gap: 8,
-                alignItems: 'center'
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginTop: 24,
+                marginBottom: 24,
             }}>
-                <input 
-                    type="text"
-                    placeholder="Enter canvas code"
-                    value={joinID}
-                    onChange={e => setJoinID(e.target.value)}
-                    style={{
-                        background: 'none',
-                        border: '1px solid #fff',
-                        color: '#fff',
-                        padding: '10px 16px',
-                        borderRadius: 6,
-                        fontSize: 16,
-                        outline: 'none',
-                        width: 180,
-                        transition: 'border 0.2s'
-                    }}
-                />
+                <h1 style={{
+                    fontWeight: 700,
+                    fontSize: 40,
+                    margin: 0,
+                    letterSpacing: 1,
+                    lineHeight: 1.1,
+                    textAlign: 'center'
+                }}>
+                    Whitebored
+                </h1>
+                <div style={{
+                    color: '#bbb',
+                    fontSize: 18,
+                    fontWeight: 400,
+                    marginTop: 10,
+                    marginBottom: 36,
+                    letterSpacing: 0.2,
+                    textAlign: 'center',
+                    lineHeight: 1.4,
+                    maxWidth: 320
+                }}>
+                    Minimal collaborative whiteboard
+                </div>
                 <button
-                    onClick={joinCanvas}
+                    onClick={createCanvas}
                     style={{
                         background: 'none',
-                        border: '1px solid #fff',
+                        border: '1.5px solid #fff',
                         color: '#fff',
-                        padding: '10px 24px',
-                        borderRadius: 6,
-                        fontSize: 16,
+                        padding: '13px 0',
+                        borderRadius: 7,
+                        fontSize: 18,
+                        fontWeight: 500,
                         cursor: 'pointer',
-                        transition: 'background 0.2s',
+                        marginBottom: 28,
+                        transition: 'background 0.2s, border 0.2s',
+                        width: '100%',
+                        maxWidth: 260,
+                        boxSizing: 'border-box',
+                        letterSpacing: 0.2
                     }}
                     onMouseOver={e => e.currentTarget.style.background = '#222'}
                     onMouseOut={e => e.currentTarget.style.background = 'none'}
                 >
-                    Join Canvas
+                    Create New Canvas
                 </button>
+                <div style={{
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'center',
+                    width: '100%',
+                    maxWidth: 260,
+                }}>
+                    <input 
+                        type="text"
+                        placeholder="Enter canvas code"
+                        value={joinID}
+                        onChange={e => setJoinID(e.target.value)}
+                        style={{
+                            background: 'none',
+                            border: '1.5px solid #fff',
+                            color: '#fff',
+                            padding: '10px 14px',
+                            borderRadius: 7,
+                            fontSize: 16,
+                            outline: 'none',
+                            flex: 1,
+                            transition: 'border 0.2s',
+                            fontWeight: 400,
+                            letterSpacing: 0.1,
+                            minWidth: 0,
+                        }}
+                    />
+                    <button
+                        onClick={joinCanvas}
+                        style={{
+                            background: 'none',
+                            border: '1.5px solid #fff',
+                            color: '#fff',
+                            padding: '10px 18px',
+                            borderRadius: 7,
+                            fontSize: 16,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            transition: 'background 0.2s, border 0.2s',
+                            letterSpacing: 0.1,
+                            minWidth: 0,
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = '#222'}
+                        onMouseOut={e => e.currentTarget.style.background = 'none'}
+                    >
+                        Join
+                    </button>
+                </div>
             </div>
         </div>
     )
