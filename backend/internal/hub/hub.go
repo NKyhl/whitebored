@@ -2,6 +2,7 @@ package hub
 
 import (
 	"encoding/json"
+	"errors"
 	"sync"
 )
 
@@ -11,6 +12,8 @@ type Hub struct {
 	mu       sync.RWMutex
 }
 
+var ErrCanvasIdTooLong = errors.New("canvasID exceeds character limit")
+
 // New initializes and returns a new Hub.
 func New() *Hub {
 	return &Hub{
@@ -19,9 +22,14 @@ func New() *Hub {
 }
 
 // CreateCanvas creates a new canvas with the given ID.
-func (h *Hub) CreateCanvas(canvasID string) {
+func (h *Hub) CreateCanvas(canvasID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
+
+	if len(canvasID) > 20 {
+		// Do not create canvases with IDs longer than 20 characters
+		return ErrCanvasIdTooLong
+	}
 
 	if _, exists := h.Canvases[canvasID]; !exists {
 		h.Canvases[canvasID] = &Canvas{
@@ -29,30 +37,30 @@ func (h *Hub) CreateCanvas(canvasID string) {
 			Strokes: []Stroke{},
 		}
 	}
+	return nil
 }
 
 // CanvasExists checks if a canvasID is being used or not
 func (h *Hub) CanvasExists(canvasID string) bool {
-	_, exists := h.Canvases[canvasID];
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	_, exists := h.Canvases[canvasID]
 	return exists
 }
 
 // AddClient adds a client to a canvas, creating the canvas if needed,
-// and sends existing strokes to the client.
+// and sends existing strokes to the client. Assumes clientID is within bounds.
 func (h *Hub) AddClient(canvasID string, client *Client) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	canvas, exists := h.Canvases[canvasID]
-	if !exists {
-		canvas = &Canvas{
-			Clients: make(map[string]*Client),
-			Strokes: []Stroke{},
-		}
-		h.Canvases[canvasID] = canvas
+	// Ensure the canvas exists, create it if it doesn't
+	if !h.CanvasExists(canvasID) {
+		_ = h.CreateCanvas(canvasID)
 	}
 
+	// Add client to the canvas
+	h.mu.Lock()
+	canvas := h.Canvases[canvasID]
 	canvas.Clients[client.ID] = client
+	h.mu.Unlock()
 
 	// Send existing strokes to the new client
 	for _, stroke := range canvas.Strokes {

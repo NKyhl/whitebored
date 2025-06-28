@@ -12,8 +12,17 @@ function Home() {
     }
 
     const joinCanvas = () => {
-        if (joinID.trim() !== '') {
-            navigate(`/canvas/${joinID.trim()}`)
+        const trimmed = joinID.trim();
+        if (trimmed !== '' && trimmed.length <= 20) {
+            navigate(`/canvas/${trimmed}`)
+        } else {
+            const input = document.querySelector('input[type="text"]');
+            if (input) {
+                input.style.borderColor = 'red';
+                setTimeout(() => {
+                    input.style.borderColor = '#fff';
+                }, 1000);
+            }
         }
     };
 
@@ -128,7 +137,9 @@ function Home() {
                         type="text"
                         placeholder="Enter canvas code"
                         value={joinID}
-                        onChange={e => setJoinID(e.target.value)}
+                        onChange={e => {
+                            if (e.target.value.length <= 20) setJoinID(e.target.value)
+                        }}
                         style={{
                             background: 'none',
                             border: '1.5px solid #fff',

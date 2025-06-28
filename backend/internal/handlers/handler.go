@@ -33,7 +33,11 @@ func NewCanvas(h *hub.Hub) gin.HandlerFunc {
 		}
 
 		// Create Canvas data structure
-		h.CreateCanvas(newID)
+		err := h.CreateCanvas(newID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    		return
+		}
 
 		// Send new canvasID back to client
 		c.JSON(http.StatusOK, gin.H{"canvasID": newID})
@@ -50,6 +54,11 @@ var upgrader = websocket.Upgrader{
 func WebSocket(h *hub.Hub) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		canvasID := c.Param("id")
+		if len(canvasID) > 20 {
+			// canvasID is too long
+			c.Redirect(http.StatusFound, "/")
+			return
+		}
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			return
