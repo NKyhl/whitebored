@@ -11,6 +11,9 @@ function Whiteboard() {
     const [strokes, setStrokes] = useState([]);
     const strokesRef = useRef(strokes);
 
+    const [penSize, setPenSize] = useState(2);
+    const [penColor, setPenColor] = useState('#fff'); // white or red
+
     useEffect(() => {
         strokesRef.current = strokes;
     }, [strokes])
@@ -30,11 +33,6 @@ function Whiteboard() {
 
         const ctx = canvas.getContext('2d')
         ctx.scale(dpr, dpr)
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#000000'
-        ctx.lineWidth = 2
-
         contextRef.current = ctx;
 
         // Redraw all strokes on resized canvas
@@ -81,6 +79,8 @@ function Whiteboard() {
 
         ctx.strokeStyle = color;
         ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
@@ -118,8 +118,8 @@ function Whiteboard() {
         const newStroke = {
             from: prev,
             to: curr,
-            color: '#fff',
-            width: 2
+            color: penColor,
+            width: penSize
         };
 
         if (ctx && prev) {
@@ -163,6 +163,7 @@ function Whiteboard() {
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
             />
+            {/* Room Code */}
             <div
                 style={{
                     position: 'absolute',
@@ -182,6 +183,115 @@ function Whiteboard() {
                 }}
             >
                 Room Code: {canvasID}
+            </div>
+            {/* Bottom dock */}
+            <div
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '16px 0',
+                    background: 'rgba(44,44,44,0.92)',
+                    borderTop: '1px solid #444',
+                    gap: 32,
+                    zIndex: 20,
+                    userSelect: 'none'
+                }}
+            >
+                {/* Pen size options */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {[2, 6, 12].map(size => (
+                        <button
+                            key={size}
+                            onClick={() => setPenSize(size)}
+                            style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                border: penSize === size ? '2px solid #fff' : '1px solid #888',
+                                background: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                outline: 'none',
+                                transition: 'border 0.2s'
+                            }}
+                            aria-label={`Pen size ${size}`}
+                        >
+                            <div style={{
+                                width: size,
+                                height: size,
+                                borderRadius: '50%',
+                                background: '#fff',
+                                opacity: 0.9
+                            }} />
+                        </button>
+                    ))}
+                </div>
+                {/* Pen color options */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <button
+                        onClick={() => setPenColor('#fff')}
+                        style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            border: penColor === '#fff' ? '2px solid #fff' : '1px solid #888',
+                            background: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            outline: 'none',
+                            transition: 'border 0.2s'
+                        }}
+                        aria-label="White pen"
+                    >
+                        <div style={{
+                            width: 18,
+                            height: 18,
+                            minWidth: 18,
+                            minHeight: 18,
+                            maxWidth: 18,
+                            maxHeight: 18,
+                            borderRadius: '50%',
+                            background: '#fff'
+                        }} />
+                    </button>
+                    <button
+                        onClick={() => setPenColor('#FF3B3B')}
+                        style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            border: penColor === '#FF3B3B' ? '2px solid #fff' : '1px solid #888',
+                            background: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            outline: 'none',
+                            transition: 'border 0.2s'
+                        }}
+                        aria-label="Red pen"
+                    >
+                        <div style={{
+                            width: 18,
+                            height: 18,
+                            minWidth: 18,
+                            minHeight: 18,
+                            maxWidth: 18,
+                            maxHeight: 18,
+                            borderRadius: '50%',
+                            background: '#FF3B3B'
+                        }} />
+                    </button>
+                </div>
             </div>
         </div>
     )
