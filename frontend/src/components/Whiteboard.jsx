@@ -118,7 +118,7 @@ function Whiteboard() {
         const newStroke = {
             from: prev,
             to: curr,
-            color: '#000000',
+            color: '#fff',
             width: 2
         };
 
@@ -147,7 +147,7 @@ function Whiteboard() {
     }
 
     return (
-        <div style={{ position: 'relative', height: '100vh', width: '100vw'}}>
+        <div style={{ position: 'relative', height: '100vh', width: '100vw', background: '#2C2C2C' }}>
             <canvas
                 ref={canvasRef}
                 style={{ 
@@ -156,7 +156,7 @@ function Whiteboard() {
                     height: '100%',
                     border: 'none',
                     touchAction: 'none',
-                    backgroundColor: '#fff'
+                    backgroundColor: '#2C2C2C'
                 }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
@@ -166,17 +166,19 @@ function Whiteboard() {
             <div
                 style={{
                     position: 'absolute',
-                    top: 20,
-                    right: 20,
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    color: 'white',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
+                    top: 24,
+                    right: 24,
+                    backgroundColor: 'rgba(44,44,44,0.95)',
+                    color: '#fff',
+                    padding: '8px 18px',
+                    borderRadius: '6px',
                     fontFamily: 'monospace',
-                    fontWeight: 'bold',
-                    fontSize: '1.2rem',
+                    fontWeight: 500,
+                    fontSize: '1.1rem',
                     userSelect: 'text',
                     pointerEvents: 'auto',
+                    border: '1px solid #444',
+                    letterSpacing: 1
                 }}
             >
                 Room Code: {canvasID}
