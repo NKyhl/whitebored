@@ -41,8 +41,7 @@ function Whiteboard() {
         contextRef.current = ctx;
 
         // Redraw all strokes on resized canvas
-        strokesRef.current.forEach(drawStroke)
-        console.log('setupCanvas')
+        strokesRef.current.forEach(drawStroke);
     }, []);
 
     // Initialize canvas context
@@ -54,7 +53,8 @@ function Whiteboard() {
 
     // WebSocket connection and message handling
     useEffect(() => {
-        wsRef.current = new WebSocket(`ws://localhost:8080/ws/${canvasID}`);
+        const wsUrl = process.env.FRONTEND_WS_URL || 'ws://localhost:8080/ws';
+        wsRef.current = new WebSocket(`${wsUrl}/${canvasID}`);
 
         wsRef.current.onopen = () => {
             console.log('WebSocket connected');

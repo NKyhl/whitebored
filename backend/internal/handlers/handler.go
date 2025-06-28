@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"slices"
 
 	"github.com/NKyhl/whitebored/backend/internal/hub"
 
@@ -45,7 +47,12 @@ func NewCanvas(h *hub.Hub) gin.HandlerFunc {
 }
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true }, // TODO: tighten this for production
+	CheckOrigin: func(r *http.Request) bool { 
+		origin := r.Header.Get("Origin")
+		allowedOrigins := []string{"http://localhost:3000", os.Getenv("FRONTEND_ORIGIN")}
+
+		return slices.Contains(allowedOrigins, origin) 
+	},
 }
 
 // WebSocket returns a Gin handler function that upgrades HTTP requests
@@ -64,6 +71,8 @@ func WebSocket(h *hub.Hub) gin.HandlerFunc {
 			return
 		}
 		defer conn.Close()
+
+		conn.SetReadLimit(1024)
 
 		clientID := uuid.New().String()
 		client := &hub.Client{

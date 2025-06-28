@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/NKyhl/whitebored/backend/internal/handlers"
 	"github.com/NKyhl/whitebored/backend/internal/hub"
 
@@ -20,5 +23,10 @@ func main() {
 	// WebSocket route
 	router.GET("/ws/:id", handlers.WebSocket(hub))
 
-	router.Run(":8080")
+	// Select port
+	port := os.Getenv("BACKEND_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run(fmt.Sprintf(":%s", port))
 }
