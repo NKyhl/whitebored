@@ -12,7 +12,9 @@ function Whiteboard() {
     const strokesRef = useRef(strokes);
 
     const [penSize, setPenSize] = useState(2);
-    const [penColor, setPenColor] = useState('#fff'); // white or red
+    const [penColor, setPenColor] = useState('#fff'); // white, red, or eraser
+
+    const ERASER_COLOR = '#2C2C2C';
 
     useEffect(() => {
         strokesRef.current = strokes;
@@ -235,6 +237,7 @@ function Whiteboard() {
                 </div>
                 {/* Pen color options */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {/* White */}
                     <button
                         onClick={() => setPenColor('#fff')}
                         style={{
@@ -263,6 +266,7 @@ function Whiteboard() {
                             background: '#fff'
                         }} />
                     </button>
+                    {/* Red */}
                     <button
                         onClick={() => setPenColor('#FF3B3B')}
                         style={{
@@ -290,6 +294,44 @@ function Whiteboard() {
                             borderRadius: '50%',
                             background: '#FF3B3B'
                         }} />
+                    </button>
+                    {/* Eraser */}
+                    <button
+                        onClick={() => setPenColor(ERASER_COLOR)}
+                        style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            border: penColor === ERASER_COLOR ? '2px solid #fff' : '1px solid #888',
+                            background: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            outline: 'none',
+                            transition: 'border 0.2s'
+                        }}
+                        aria-label="Eraser"
+                    >
+                        <div style={{
+                            width: 18,
+                            height: 18,
+                            minWidth: 18,
+                            minHeight: 18,
+                            maxWidth: 18,
+                            maxHeight: 18,
+                            borderRadius: '50%',
+                            background: ERASER_COLOR,
+                            border: '2px dashed #888',
+                            boxSizing: 'border-box',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <svg width="12" height="12" viewBox="0 0 12 12">
+                                <rect x="2" y="5" width="8" height="2" rx="1" fill="#888" />
+                            </svg>
+                        </div>
                     </button>
                 </div>
             </div>
