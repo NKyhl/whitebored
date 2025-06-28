@@ -11,8 +11,8 @@ type Hub struct {
 	mu       sync.RWMutex
 }
 
-// NewHub initializes and returns a new Hub.
-func NewHub() *Hub {
+// New initializes and returns a new Hub.
+func New() *Hub {
 	return &Hub{
 		Canvases: make(map[string]*Canvas),
 	}

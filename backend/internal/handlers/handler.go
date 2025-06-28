@@ -11,7 +11,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func CreateCanvasHandler(h *hub.Hub) gin.HandlerFunc {
+// HealthCheck returns a Gin handler function that responds with a simple
+// JSON object indicating the server is running and healthy.
+func HealthCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "OK"})
+	}
+}
+
+// NewCanvas returns a Gin handler function that generates a new unique canvas ID,
+// creates a new canvas in the hub, and sends the canvas ID back to the client.
+func NewCanvas(h *hub.Hub) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Generate unique canvas ID
 		var newID string
@@ -34,10 +44,10 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true }, // TODO: tighten this for production
 }
 
-// HandleWebSocket returns a Gin handler function that upgrades HTTP requests
+// WebSocket returns a Gin handler function that upgrades HTTP requests
 // to WebSocket connections, registers the client with the hub and desired canvas,
 // and sets up bidirectional communication with other users on this canvas.
-func HandleWebSocket(h *hub.Hub) gin.HandlerFunc {
+func WebSocket(h *hub.Hub) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		canvasID := c.Param("id")
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
