@@ -1,12 +1,15 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
 function Whiteboard() {
     const { id: canvasID } = useParams()
+    const navigate = useNavigate();
+
     const canvasRef = useRef(null)
     const contextRef = useRef(null);
     const lastPoint = useRef(null);
     const wsRef = useRef(null);
+
     const [isDrawing, setIsDrawing] = useState(false);
     const [strokes, setStrokes] = useState([]);
     const strokesRef = useRef(strokes);
@@ -165,6 +168,47 @@ function Whiteboard() {
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
             />
+            {/* Home button */}
+            <button
+                onClick={() => navigate('/')}
+                style={{
+                    position: 'absolute',
+                    top: 24,
+                    left: 24,
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    border: '1.5px solid #444',
+                    background: 'rgba(44,44,44,0.92)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 20,
+                    boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                    transition: 'background 0.18s, border 0.18s, box-shadow 0.18s, opacity 0.18s',
+                    opacity: 0.92,
+                    outline: 'none'
+                }}
+                onMouseOver={e => {
+                    e.currentTarget.style.background = '#222';
+                    e.currentTarget.style.border = '1.5px solid #fff';
+                    e.currentTarget.style.opacity = 1;
+                    e.currentTarget.style.boxShadow = '0 4px 16px 0 rgba(0,0,0,0.18)';
+                }}
+                onMouseOut={e => {
+                    e.currentTarget.style.background = 'rgba(44,44,44,0.92)';
+                    e.currentTarget.style.border = '1.5px solid #444';
+                    e.currentTarget.style.opacity = 0.92;
+                    e.currentTarget.style.boxShadow = '0 2px 8px 0 rgba(0,0,0,0.10)';
+                }}
+                aria-label="Back to Home"
+            >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 19l-7-7 7-7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </button>
             {/* Room Code */}
             <div
                 style={{
