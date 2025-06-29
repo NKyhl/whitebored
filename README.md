@@ -1,6 +1,6 @@
 # whitebored
 
-> A real-time collaborative whiteboard app built with Go (Gin), WebSockets, and React.
+> A minimalist collaborative whiteboarding tool built with Go (Gin), WebSockets, and React.
 
 **whitebored** lets multiple users draw on a shared canvas in real time. Each canvas is discarded when all users disconnect. No accounts or history - just drop in and draw.
 
@@ -12,8 +12,8 @@ whitebored/
 │ │ └── server/
 │ │   └── main.go   # Entry point
 │ ├── internal/
-│ │ └── hub/        # WebSocket connection hub
-│ │ └── ws/         # WebSocket handler
+│ │ └── hub/        # Canvas hub
+│ │ └── handlers/   # API handlers
 │ ├── go.mod
 │ └── go.sum
 │
@@ -21,6 +21,7 @@ whitebored/
 │ ├── public/
 │ ├── src/
 │ │ ├── components/
+│ │ │ ├── Home.js
 │ │ │ └── Whiteboard.js
 │ │ ├── App.js
 │ │ └── index.js
@@ -46,7 +47,11 @@ yarn start
 React runs on localhost:3000
 
 ## Planned Improvements
-- User interface for creating and joining rooms
-- Add persistent canvas storage
+- User interface for creating and joining rooms ✅
+- Toolbar for selecting pen style ✅
 - Mobile responsiveness
 - Undo/redo
+- Display other users
+- Add persistent canvas storage
+- Infinite canvas
+- Display real-time cursors
