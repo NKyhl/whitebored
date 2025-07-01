@@ -1,6 +1,8 @@
 # whitebored
 
-> A minimalist collaborative whiteboarding tool built with Go (Gin), WebSockets, and React.
+![Preview of app home screen](/assets/readme/preview.jpeg)
+
+A minimal collaborative whiteboard built with Go (Gin), WebSockets, and React.
 
 **whitebored** lets multiple users draw on a shared canvas in real time. Each canvas is discarded when all users disconnect. No accounts or history - just drop in and draw.
 
